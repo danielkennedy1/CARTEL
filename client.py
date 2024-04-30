@@ -16,6 +16,7 @@ def cli():
     type=click.Path(),
     default="/my_path/my_keypair.pem",
     help="File path to save the generated keys ",
+    required=True,
 )
 def generate_keypair(out):
     try:
