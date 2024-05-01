@@ -24,20 +24,20 @@ class User(Base):
 
 class Message(Base):
     
-        __tablename__ = "messages"
+    __tablename__ = "messages"
     
-        id = Column(Integer, primary_key=True)
-        sender = Column(Integer, ForeignKey('users.id'))
-        recipient = Column(Integer, ForeignKey('users.id'))
-        message = Column(String)
-        signature = Column(String)
-    
-        def __init__(self, sender, recipient, message, signature):
-    
-            self.sender = sender
-            self.recipient = recipient
-            self.message = message
-            self.signature = signature
+    id = Column(Integer, primary_key=True)
+    sender = Column(Integer, ForeignKey('users.id'))
+    recipient = Column(Integer, ForeignKey('users.id'))
+    message = Column(String)
+    signature = Column(String)
+
+    def __init__(self, sender, recipient, message, signature):
+
+        self.sender = sender
+        self.recipient = recipient
+        self.message = message
+        self.signature = signature
 
 def create_db(reset=False):
     if reset:
