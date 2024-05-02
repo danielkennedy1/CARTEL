@@ -3,4 +3,4 @@ __pycache__/
 cartel.db
 .vscode/
 *.pyc
-
+*.cartel
