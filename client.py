@@ -188,6 +188,23 @@ def send(file_path, to):
         click.echo(f"Error: {message.text}")
         return
 
+@cli.command(help="List all users in the cartel")
+@click.argument("username", type=str)
+def whois(username: str):
+    response = requests.post("http://127.0.0.1:5000/users", json={"name": username})
+    if response.status_code != 200:
+        click.echo(f"Error: {response.text}")
+        return
+    click.echo(response.json())
+
+@cli.command(help="List all usernames in the cartel")
+def narcos():
+    response = requests.get("http://127.0.0.1:5000/users")
+    if response.status_code != 200:
+        click.echo(f"Error: {response.text}")
+        return
+    for user in response.json():
+        click.echo(user)
 
 if __name__ == "__main__":
     cli()
