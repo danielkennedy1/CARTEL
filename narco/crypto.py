@@ -27,3 +27,7 @@ def encrypt_file(file: str, key: RSA.RsaKey) -> bytes:
     encrypted_chunks.append(ciphertext)
     return b"".join(encrypted_chunks)
 
+def decrypt(input: bytes, key: RSA.RsaKey) -> bytes:
+    decryptor = PKCS1_OAEP.new(key)
+    return decryptor.decrypt(input)
+
