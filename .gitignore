@@ -4,3 +4,4 @@ cartel.db
 .vscode/
 *.pyc
 *.cartel
+rw.ipynb
