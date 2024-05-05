@@ -1,33 +1,35 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
-def get_key_bytes_length(public_key) -> int:
-    key: bytes = public_key.public_key().export_key()
-    return len(key[key.index(b"\n") : key.rindex(b"\n")])
-
 
 def encrypt_file(file: str, key: RSA.RsaKey) -> bytes:
-    buffer_size = get_key_bytes_length(key) // 2
-    scrambler = PKCS1_OAEP.new(key)
-    encrypted_chunks = []
+    file_bytes = file_to_bytes(file)
+    return encrypt(file_bytes, key)
 
-    with open(file, "rb") as f:
-        while True:
-            to_encrypt = f.read(buffer_size)
-            if len(to_encrypt) == 0:
-                break
+def file_to_bytes(file_path: str) -> bytes:
+    with open(file_path, "rb") as file:
+        return file.read()
 
-            encrypted = scrambler.encrypt(to_encrypt)
-            encrypted_chunks.append(encrypted)
+def encrypt(input: bytes, key: RSA.RsaKey) -> bytes:
+    cipher = PKCS1_OAEP.new(key)
 
-        plaintext = f.read()
+    max_length = key.size_in_bytes() - 42
 
-    encryptor = PKCS1_OAEP.new(key)
-    ciphertext = encryptor.encrypt(plaintext)
-    encrypted_chunks.append(ciphertext)
-    return b"".join(encrypted_chunks)
+    encrypted_blocks = []
+    for i in range(0, len(input), max_length):
+        block = input[i:i+max_length]
+        encrypted_blocks.append(cipher.encrypt(block))
+
+    return b"".join(encrypted_blocks)
 
 def decrypt(input: bytes, key: RSA.RsaKey) -> bytes:
-    decryptor = PKCS1_OAEP.new(key)
-    return decryptor.decrypt(input)
+    cipher = PKCS1_OAEP.new(key)
 
+    max_length = key.size_in_bytes()
+
+    decrypted_blocks = []
+    for i in range(0, len(input), max_length):
+        block = input[i:i+max_length]
+        decrypted_blocks.append(cipher.decrypt(block))
+
+    return b"".join(decrypted_blocks)

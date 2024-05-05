@@ -33,7 +33,7 @@ def send(file_path, to):
     hash = SHA256.new(ciphertext)
     signature = pkcs1_15.new(sender_privkey).sign(hash)
 
-    sender = get_user(sender)
+    sender = get_user_by_name(sender)
     if sender is None:
         click.echo(f"Error: {sender} not found in the cartel")
         return
@@ -55,7 +55,7 @@ def send(file_path, to):
         click.echo(f"Error: {message.text}")
         return
 
-def get_user(name: str):
+def get_user_by_name(name: str):
     response = requests.post(f"{CARTEL_URL}/users", json={"name": name})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
@@ -65,7 +65,7 @@ def get_user(name: str):
 @click.command(help="Get details of a user in the cartel")
 @click.argument("username", type=str)
 def whois(username: str):
-    click.echo(get_user(username))
+    click.echo(get_user_by_name(username))
 
 @click.command(help="List all usernames in the cartel")
 def narcos():
@@ -82,7 +82,7 @@ def inbox():
     if get_state().get("user") is None:
         click.echo("User not selected. Please run `select` to select a user or `init` to create one.")
         return
-    my_profile = get_user(get_state()["user"])
+    my_profile = get_user_by_name(get_state()["user"])
     if my_profile is None:
         return
     user_id = my_profile["id"]
@@ -95,15 +95,6 @@ def inbox():
     for message in response.json():
         click.echo(message)
 
-"""
-{
-    "id": 1,
-    "sender": 1,
-    "recipient": 2,
-    "message": "message1",
-    "signature": "signature1"
-}
-"""
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
@@ -123,26 +114,26 @@ def read(message_id: int):
     click.echo(f"Message ID: {message_id}")
     click.echo(f"Sender ID: {sender_id}")
     click.echo(f"Recipient ID: {recipient_id}")
-    click.echo(f"Encrypted message: {message_ciphertext}")
-    click.echo(f"Signature: {signature}")
 
     _, private_key = get_local_keys(get_state()["user"])
 
-    sender = get_user(sender_id)
-    if sender is None:
-        click.echo(f"Error: {sender} not found in the cartel")
-        return
+    # TODO: Signature verification requires get_user_by_id
 
-    sender_pubkey = RSA.import_key(sender["public_key"])
-
-   # verify the signature
-    hash = SHA256.new(message_ciphertext)
-
-    try:
-        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(signature))
-        click.echo("Signature is valid")
-    except ValueError:
-        click.echo("Signature is invalid")
+#    sender = get_user_by_name(sender_id)
+#    if sender is None:
+#        click.echo("Error: sender not found in the cartel")
+#        return
+#
+#    sender_pubkey = RSA.import_key(sender["public_key"])
+#
+#   # verify the signature
+#    hash = SHA256.new(message_ciphertext)
+#
+#    try:
+#        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(signature))
+#        click.echo("Signature is valid")
+#    except ValueError:
+#        click.echo("Signature is invalid")
 
     # decrypt the message
     decrypted = decrypt(message_ciphertext, private_key)
