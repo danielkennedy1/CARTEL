@@ -18,9 +18,20 @@ def list_users():
     return jsonify(usernames)
 
 # Check public key: return user data
-def get_user(name: str):
+def get_user_by_name(name: str):
     # TODO: remove first when validation is added
     result = session.execute(select(User.id, User.public_key, User.name).where(User.name == name)).first() # type: ignore
+    if not result:
+        return jsonify({"error": "User not found"}), 404
+    user = {
+        "name": result.name,
+        "public_key": result.public_key,
+        "id": result.id
+    }
+    return jsonify(user)
+
+def get_user_by_id(id: int):
+    result = session.execute(select(User.id, User.public_key, User.name).where(User.id == id)).first() # type: ignore
     if not result:
         return jsonify({"error": "User not found"}), 404
     user = {

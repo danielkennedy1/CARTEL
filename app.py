@@ -1,6 +1,6 @@
 from flask import Flask, request, Response
 from cartel.db import create_db
-from cartel.users import register_user, list_users, get_user
+from cartel.users import register_user, list_users, get_user_by_name, get_user_by_id
 from cartel.messages import list_messages, get_message, new_message
 
 app = Flask(__name__)
@@ -20,7 +20,10 @@ def register():
     if request.method == "PUT":
         response = register_user(data["name"], data["public_key"])
     elif request.method == "POST":
-        response = get_user(data["name"])
+        if data.get("id") is None:
+            response = get_user_by_name(data["name"])
+        else:
+            response = get_user_by_id(data["id"])
     return response
 
 

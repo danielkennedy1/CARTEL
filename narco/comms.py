@@ -62,6 +62,13 @@ def get_user_by_name(name: str):
         return None
     return response.json()
 
+def get_user_by_id(id: int):
+    response = requests.post(f"{CARTEL_URL}/users", json={"id": id})
+    if response.status_code != 200:
+        click.echo(f"Error: {response.text}")
+        return None
+    return response.json()
+
 @click.command(help="Get details of a user in the cartel")
 @click.argument("username", type=str)
 def whois(username: str):
@@ -111,32 +118,32 @@ def read(message_id: int):
     message_ciphertext = bytes.fromhex(response["message"])
     signature = response["signature"]
 
+    _, private_key = get_local_keys(get_state()["user"])
+
+    sender = get_user_by_id(sender_id)
+    if sender is None:
+        click.echo("Error: sender not found in the cartel")
+        return
+
+    sender_pubkey = RSA.import_key(sender["public_key"])
+
+   # verify the signature
+    hash = SHA256.new(message_ciphertext)
+
+    try:
+        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(signature))
+        click.echo("Signature is valid")
+    except ValueError:
+        click.echo("Signature is invalid")
+        return
+
     click.echo(f"Message ID: {message_id}")
     click.echo(f"Sender ID: {sender_id}")
     click.echo(f"Recipient ID: {recipient_id}")
 
-    _, private_key = get_local_keys(get_state()["user"])
-
-    # TODO: Signature verification requires get_user_by_id
-
-#    sender = get_user_by_name(sender_id)
-#    if sender is None:
-#        click.echo("Error: sender not found in the cartel")
-#        return
-#
-#    sender_pubkey = RSA.import_key(sender["public_key"])
-#
-#   # verify the signature
-#    hash = SHA256.new(message_ciphertext)
-#
-#    try:
-#        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(signature))
-#        click.echo("Signature is valid")
-#    except ValueError:
-#        click.echo("Signature is invalid")
-
     # decrypt the message
     decrypted = decrypt(message_ciphertext, private_key)
 
-    click.echo(f"Decrypted message: {decrypted}")
+    click.echo("Decrypted message:")
+    click.echo(decrypted.decode("utf-8"))
 
