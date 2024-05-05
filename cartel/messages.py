@@ -24,6 +24,7 @@ def get_message(id: int):
 
 # Send message: create message, return created message data
 # TODO: Validate signature
+# TODO: Other validations, e.g. recipient exists
 def new_message(data: dict):
     message = Message(
             sender=data["sender"],

@@ -12,6 +12,7 @@ from narco.local import get_state, get_local_keys
 
 # TODO; cache read messages, only fetch new messages (could be done serverside or here)
 # TODO: Cache user_id(s)
+# TODO: Check that my Public key is valid (maybe on select)
 
 @click.command(help="Share a file with the cartel")
 @click.argument("file_path", type=click.Path(exists=True))
