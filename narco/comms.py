@@ -14,6 +14,7 @@ from narco.local import get_state, get_local_keys
 # TODO: Cache user_id(s)
 # TODO: Check that my Public key is valid (maybe on select)
 
+
 @click.command(help="Share a file with the cartel")
 @click.argument("file_path", type=click.Path(exists=True))
 @click.argument("to", type=str)
@@ -56,12 +57,14 @@ def send(file_path, to):
         click.echo(f"Error: {message.text}")
         return
 
+
 def get_user_by_name(name: str):
     response = requests.post(f"{CARTEL_URL}/users", json={"name": name})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return None
     return response.json()
+
 
 def get_user_by_id(id: int):
     response = requests.post(f"{CARTEL_URL}/users", json={"id": id})
@@ -70,10 +73,12 @@ def get_user_by_id(id: int):
         return None
     return response.json()
 
+
 @click.command(help="Get details of a user in the cartel")
 @click.argument("username", type=str)
 def whois(username: str):
     click.echo(get_user_by_name(username))
+
 
 @click.command(help="List all usernames in the cartel")
 def narcos():
@@ -85,10 +90,13 @@ def narcos():
         click.echo(user)
 
 # TODO: format output, do dont show read ones, include sender info too, etc.
+
+
 @click.command(help="List my messages")
 def inbox():
     if get_state().get("user") is None:
-        click.echo("User not selected. Please run `select` to select a user or `init` to create one.")
+        click.echo(
+            "User not selected. Please run `select` to select a user or `init` to create one.")
         return
     my_profile = get_user_by_name(get_state()["user"])
     if my_profile is None:
@@ -96,17 +104,20 @@ def inbox():
     user_id = my_profile["id"]
     if user_id is None:
         return
-    response = requests.post(f"{CARTEL_URL}/messages", json={"user_id": user_id})
+    response = requests.post(
+        f"{CARTEL_URL}/messages", json={"user_id": user_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
     for message in response.json():
         click.echo(message)
 
+
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
-    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id})
+    response = requests.post(
+        f"{CARTEL_URL}/messages", json={"message_id": message_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -147,4 +158,3 @@ def read(message_id: int):
 
     click.echo("Decrypted message:")
     click.echo(decrypted.decode("utf-8"))
-
