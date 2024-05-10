@@ -10,17 +10,15 @@ from narco.conf import CARTEL_URL
 from narco.crypto import encrypt_file, decrypt
 from narco.local import get_state, get_local_keys
 
-# TODO; cache read messages, only fetch new messages (could be done serverside or here)
-# TODO: Cache user_id(s)
-# TODO: Check that my Public key is valid (maybe on select)
-
-
 @click.command(help="Share a file with the cartel")
 @click.argument("file_path", type=click.Path(exists=True))
 @click.argument("to", type=str)
 def send(file_path, to):
     sender = get_state()["user"]
-    _, sender_privkey = get_local_keys(sender)  # get only sender's private key
+    sender_pubkey, sender_privkey = get_local_keys(sender)  # get only sender's private key
+    
+    verify_pubkey(sender, sender_pubkey)
+
     receiver = requests.post(f"{CARTEL_URL}/users", json={"name": to})
 
     if receiver.status_code != 200:
@@ -35,6 +33,8 @@ def send(file_path, to):
     hash = SHA256.new(ciphertext)
     signature = pkcs1_15.new(sender_privkey).sign(hash)
 
+    password = click.prompt("Enter your password:", hide_input=True)
+
     sender = get_user_by_name(sender)
     if sender is None:
         click.echo(f"Error: {sender} not found in the cartel")
@@ -48,6 +48,7 @@ def send(file_path, to):
         json={
             "sender": sender_user_id,
             "recipient": receiver_user_id,
+            "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
         },
@@ -57,6 +58,19 @@ def send(file_path, to):
         click.echo(f"Error: {message.text}")
         return
 
+# verify the public key of a given username in the cartel against the one in the local keys
+def verify_pubkey(username: str, local_pubkey: RSA.RsaKey):
+    user = get_user_by_name(username)
+
+    if user is None:
+        click.echo(f"Error: {username} not found in the cartel")
+        return
+
+    # import/export for same format comparison
+    remote_pubkey = RSA.import_key(user["public_key"])
+    if local_pubkey.export_key() != remote_pubkey.export_key():
+        click.echo(f"Error: {username} public key is different from the one in the cartel")
+        return
 
 def get_user_by_name(name: str):
     response = requests.post(f"{CARTEL_URL}/users", json={"name": name})
@@ -89,9 +103,7 @@ def narcos():
     for user in response.json():
         click.echo(user)
 
-# TODO: format output, do dont show read ones, include sender info too, etc.
-
-
+#MAYBE: format output, do dont show read ones, include sender info too, etc.
 @click.command(help="List my messages")
 def inbox():
     if get_state().get("user") is None:
@@ -113,6 +125,7 @@ def inbox():
         click.echo(message)
 
 
+#MAYBE: require password to read
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):

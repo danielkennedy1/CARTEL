@@ -7,7 +7,6 @@ from cartel.schemas import valid_id, valid_user_id, valid_name, valid_name_and_p
 
 app = Flask(__name__)
 
-
 # Users: GET to list all users
 @app.route("/users", methods=["GET"])
 def users():

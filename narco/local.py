@@ -23,11 +23,14 @@ def init():
 
         key = RSA.generate(3072)
 
+        password = click.prompt("Enter a password", hide_input=True)
+
         user = requests.put(
             f"{CARTEL_URL}/users",
             json={
                 "name": username,
                 "public_key": key.publickey().export_key("PEM").decode("utf-8"),
+                "password": password,
             },
         )
 
