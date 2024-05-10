@@ -44,12 +44,12 @@ def new_message(data: dict):
 
     sender_pubkey = RSA.import_key(sender_pubkey)
 
-    hash = SHA256.new(data["message"].encode())
+    hash = SHA256.new(bytes.fromhex(data["message"]))
 
     try:
         pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(data["signature"]))
-    except ValueError:
-        return Response("Signature is invalid", status=400)
+    except ValueError as e:
+        return Response(f"Signature is invalid {e}", status=400)
 
     message = Message(
             sender=data["sender"],
