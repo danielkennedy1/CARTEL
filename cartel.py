@@ -20,7 +20,7 @@ def register():
     response = Response("Invalid method", status=405)
     if request.method == "PUT":
         valid_name_and_public_key.validate(data)
-        response = register_user(data["name"], data["public_key"])
+        response = register_user(data["name"], data["public_key"], data["password"])
     elif request.method == "POST":
         if data.get("id") is None:
             valid_name.validate(data)
