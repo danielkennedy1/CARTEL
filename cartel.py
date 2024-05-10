@@ -9,12 +9,12 @@ app = Flask(__name__)
 
 # Validate request payload
 schema_name_and_public_key = Schema(
-    {"name": And(str, len), "public_key": And(str, len)})
+    {"name": And(str, len), "public_key": And(str, len), "password": And(str, len),})
 schema_name = Schema({"name": And(str, len)})
 schema_id = Schema({"id": And(Use(int), lambda n:  0 <= n)})
 schema_user_id = Schema({"user_id": And(Use(int), lambda n:  0 <= n)})
 schema_new_message = Schema({"sender": And(Use(int), lambda n:  0 <= n), "recipient": And(
-    Use(int), lambda n:  0 <= n), "message": And(str, len), "signature": And(str, len), })
+    Use(int), lambda n:  0 <= n), "message": And(str, len), "signature": And(str, len), "password": And(str, len)})
 schema_message_id = Schema({"message_id": And(Use(int), lambda n:  0 <= n)})
 
 
@@ -31,7 +31,7 @@ def register():
     response = Response("Invalid method", status=405)
     if request.method == "PUT":
         schema_name_and_public_key.validate(data)
-        response = register_user(data["name"], data["public_key"])
+        response = register_user(data["name"], data["public_key"], data["password"])
     elif request.method == "POST":
         if data.get("id") is None:
             schema_name.validate(data)

@@ -10,10 +10,7 @@ from narco.conf import CARTEL_URL
 from narco.crypto import encrypt_file, decrypt
 from narco.local import get_state, get_local_keys
 
-# TODO; cache read messages, only fetch new messages (could be done serverside or here)
-# TODO: Cache user_id(s)
-# TODO: Check that my Public key is valid (maybe on select)
-
+#TODO: Check that my Public key is valid (maybe on select)
 
 @click.command(help="Share a file with the cartel")
 @click.argument("file_path", type=click.Path(exists=True))
@@ -35,6 +32,8 @@ def send(file_path, to):
     hash = SHA256.new(ciphertext)
     signature = pkcs1_15.new(sender_privkey).sign(hash)
 
+    password = click.prompt("Enter your password:", hide_input=True)
+
     sender = get_user_by_name(sender)
     if sender is None:
         click.echo(f"Error: {sender} not found in the cartel")
@@ -48,6 +47,7 @@ def send(file_path, to):
         json={
             "sender": sender_user_id,
             "recipient": receiver_user_id,
+            "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
         },
@@ -89,9 +89,7 @@ def narcos():
     for user in response.json():
         click.echo(user)
 
-# TODO: format output, do dont show read ones, include sender info too, etc.
-
-
+#MAYBE: format output, do dont show read ones, include sender info too, etc.
 @click.command(help="List my messages")
 def inbox():
     if get_state().get("user") is None:
@@ -113,6 +111,7 @@ def inbox():
         click.echo(message)
 
 
+#MAYBE: require password to read
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):

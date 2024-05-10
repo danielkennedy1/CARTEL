@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -15,12 +15,17 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)  
     public_key = Column(String)
+    password_hash = Column(String)
 
-
-    def __init__(self, name, public_key):
+    def __init__(self, name, public_key, password_hash):
 
         self.name = name    
         self.public_key = public_key
+        self.password_hash = password_hash
+    
+    __table_args__ = (
+        UniqueConstraint('name'),
+    )
 
 class Message(Base):
     
