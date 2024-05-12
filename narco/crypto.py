@@ -1,20 +1,11 @@
 from Crypto.Cipher import AES
-from Crypto.Protocol.KDF import scrypt
 from Crypto.Util.Padding import pad, unpad
-
-
-def derive_iv(shared_secret):
-    # Derive the IV from the shared secret using a key derivation function (it is deterministic and reversible)
-    iv = scrypt(shared_secret, salt=b"", key_len=16, N=2**14, r=8, p=1)
-    return iv
+from Crypto.Random import get_random_bytes
 
 
 def encrypt_file(shared_secret, file_path):
-    # Derive IV from shared secret
-    iv = derive_iv(shared_secret)
-
     # Create an AES-256-CBC cipher
-    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=iv)
+    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
 
     # Open the file and encrypt it
     with open(file_path, "rb") as f:
@@ -30,20 +21,14 @@ def encrypt_file(shared_secret, file_path):
 
 
 def decrypt_file(shared_secret, ciphertext):
-    # Derive IV from shared secret
-    iv = derive_iv(shared_secret)
 
     # Create an AES-256-CBC cipher
-    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=iv)
+    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
 
     # Decrypt the ciphertext
     decrypted_data = cipher.decrypt(ciphertext)
-    print(decrypted_data)
 
-    # Unpad the decrypted data
-    unpadded_data = unpad(decrypted_data, AES.block_size)
-
-    return unpadded_data
+    return decrypted_data
 
 
 def derive_shared_secret(sender_private_key, receiver_public_key):
