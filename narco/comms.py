@@ -7,7 +7,7 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 
 from narco.conf import CARTEL_URL
-from narco.crypto import encrypt_file, decrypt, derive_shared_secret
+from narco.crypto import encrypt_file, decrypt_file, derive_shared_secret
 from narco.local import get_state, get_local_keys
 
 
@@ -17,7 +17,8 @@ from narco.local import get_state, get_local_keys
 def send(file_path, to):
     sender = get_state()["user"]
     sender_pubkey, sender_privkey = get_local_keys(
-        sender)  # get only sender's private key
+        sender
+    )  # get only sender's private key
 
     verify_pubkey(sender, sender_pubkey)
 
@@ -28,8 +29,8 @@ def send(file_path, to):
         return
 
     receiver = json.loads(receiver.content.decode("utf-8"))
-    shared_secret = derive_shared_secret(
-        sender_privkey, receiver["public_key"])
+    receiver_public_key = RSA.import_key(receiver["public_key"])
+    shared_secret = derive_shared_secret(sender_privkey, receiver_public_key)
 
     ciphertext = encrypt_file(shared_secret, file_path)
 
@@ -62,6 +63,7 @@ def send(file_path, to):
         click.echo(f"Error: {message.text}")
         return
 
+
 # verify the public key of a given username in the cartel against the one in the local keys
 
 
@@ -76,7 +78,8 @@ def verify_pubkey(username: str, local_pubkey: RSA.RsaKey):
     remote_pubkey = RSA.import_key(user["public_key"])
     if local_pubkey.export_key() != remote_pubkey.export_key():
         click.echo(
-            f"Error: {username} public key is different from the one in the cartel")
+            f"Error: {username} public key is different from the one in the cartel"
+        )
         return
 
 
@@ -111,6 +114,7 @@ def narcos():
     for user in response.json():
         click.echo(user)
 
+
 # MAYBE: format output, do dont show read ones, include sender info too, etc.
 
 
@@ -118,7 +122,8 @@ def narcos():
 def inbox():
     if get_state().get("user") is None:
         click.echo(
-            "User not selected. Please run `select` to select a user or `init` to create one.")
+            "User not selected. Please run `select` to select a user or `init` to create one."
+        )
         return
     my_profile = get_user_by_name(get_state()["user"])
     if my_profile is None:
@@ -126,8 +131,7 @@ def inbox():
     user_id = my_profile["id"]
     if user_id is None:
         return
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"user_id": user_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"user_id": user_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -139,8 +143,7 @@ def inbox():
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"message_id": message_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -162,7 +165,7 @@ def read(message_id: int):
 
     sender_pubkey = RSA.import_key(sender["public_key"])
 
-   # verify the signature
+    # verify the signature
     hash = SHA256.new(message_ciphertext)
 
     try:
@@ -176,8 +179,7 @@ def read(message_id: int):
     click.echo(f"Sender ID: {sender_id}")
     click.echo(f"Recipient ID: {recipient_id}")
 
-    # decrypt the message
-    decrypted = decrypt(message_ciphertext, private_key)
-
-    click.echo("Decrypted message:")
-    click.echo(decrypted.decode("utf-8"))
+    verify_pubkey(sender["name"], sender_pubkey)
+    shared_secret = derive_shared_secret(private_key, sender_pubkey)
+    message = decrypt_file(shared_secret, message_ciphertext)
+    click.echo(message.decode("utf-8", errors="replace"))
