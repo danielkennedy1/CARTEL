@@ -2,39 +2,27 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 
+from Crypto.Protocol.KDF import scrypt
+
 
 def encrypt_file(shared_secret, file_path):
-    # Create an AES-256-CBC cipher
     cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
+    data = file_to_bytes(file_path)
 
-    # Open the file and encrypt it
-    with open(file_path, "rb") as f:
-        file_data = f.read()
-
-    # Pad the data to a multiple of the block size (16 bytes for AES)
-    padded_data = pad(file_data, AES.block_size)
-
-    # Encrypt the padded data
+    padded_data = pad(data, AES.block_size)
     ciphertext = cipher.encrypt(padded_data)
 
     return ciphertext
 
 
 def decrypt_file(shared_secret, ciphertext):
-
-    # Create an AES-256-CBC cipher
     cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
-
-    # Decrypt the ciphertext
-    decrypted_data = cipher.decrypt(ciphertext)
-
-    return decrypted_data
+    decrypted_data = cipher.decrypt(ciphertext, AES.block_size)
+    unpadded_data = unpad(decrypted_data)  # this is problem
+    return unpadded_data
 
 
 def derive_shared_secret(sender_private_key, receiver_public_key):
-    # Derive a shared secret from the sender's private key and the receiver's public key
-    from Crypto.Protocol.KDF import scrypt
-
     shared_secret = scrypt(
         sender_private_key.export_key(),
         receiver_public_key.export_key(),
