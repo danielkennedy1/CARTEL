@@ -32,7 +32,7 @@ def send(file_path, to):
     receiver_public_key = RSA.import_key(receiver["public_key"])
     shared_secret = derive_shared_secret(sender_privkey, receiver_public_key)
 
-    ciphertext = encrypt_file(shared_secret, file_path)
+    ciphertext, iv = encrypt_file(shared_secret, file_path)
 
     # sign the message
     hash = SHA256.new(ciphertext)
@@ -56,6 +56,7 @@ def send(file_path, to):
             "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
+            "iv": iv.hex(),
         },
     )
 
@@ -155,6 +156,7 @@ def read(message_id: int):
     recipient_id = response["recipient"]
     message_ciphertext = bytes.fromhex(response["message"])
     signature = response["signature"]
+    iv = bytes.fromhex(response["iv"])
 
     _, private_key = get_local_keys(get_state()["user"])
 
@@ -181,5 +183,5 @@ def read(message_id: int):
 
     verify_pubkey(sender["name"], sender_pubkey)
     shared_secret = derive_shared_secret(private_key, sender_pubkey)
-    message = decrypt_file(shared_secret, message_ciphertext)
+    message = decrypt_file(shared_secret, message_ciphertext, iv)
     click.echo(message)

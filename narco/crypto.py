@@ -11,11 +11,11 @@ def encrypt_file(shared_secret, file_path):
 
     padded_data = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(padded_data)
-    return ciphertext
+    return ciphertext, cipher.iv
 
 
-def decrypt_file(shared_secret, ciphertext):
-    cipher = AES.new(shared_secret, AES.MODE_CBC)
+def decrypt_file(shared_secret, ciphertext, iv):
+    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=iv)
     plaintext = cipher.decrypt(ciphertext)
     return unpad(plaintext, AES.block_size)
 
