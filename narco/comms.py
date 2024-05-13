@@ -5,9 +5,10 @@ import json
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
-
+from Crypto.Random import get_random_bytes
+from Crypto.Cipher import PKCS1_OAEP
 from narco.conf import CARTEL_URL
-from narco.crypto import encrypt_file, decrypt_file, derive_shared_secret
+from narco.crypto import encrypt_file, decrypt_file
 from narco.local import get_state, get_local_keys
 
 
@@ -30,9 +31,11 @@ def send(file_path, to):
 
     receiver = json.loads(receiver.content.decode("utf-8"))
     receiver_public_key = RSA.import_key(receiver["public_key"])
-    shared_secret = derive_shared_secret(sender_privkey, receiver_public_key)
 
-    ciphertext, iv = encrypt_file(shared_secret, file_path)
+    aes_key = get_random_bytes(16)
+
+    secret = PKCS1_OAEP.new(receiver_public_key).encrypt(aes_key)
+    ciphertext, iv = encrypt_file(secret, file_path)
 
     # sign the message
     hash = SHA256.new(ciphertext)
@@ -57,6 +60,7 @@ def send(file_path, to):
             "message": ciphertext.hex(),
             "signature": signature.hex(),
             "iv": iv.hex(),
+            "secret": secret.hex(),
         },
     )
 
@@ -159,6 +163,9 @@ def read(message_id: int):
     iv = bytes.fromhex(response["iv"])
 
     _, private_key = get_local_keys(get_state()["user"])
+    secret = bytes.fromhex(response["secret"])
+    # decrypt secret with private key
+    secret = private_key.decrypt(secret)
 
     sender = get_user_by_id(sender_id)
     if sender is None:
@@ -182,6 +189,5 @@ def read(message_id: int):
     click.echo(f"Recipient ID: {recipient_id}")
 
     verify_pubkey(sender["name"], sender_pubkey)
-    shared_secret = derive_shared_secret(private_key, sender_pubkey)
-    message = decrypt_file(shared_secret, message_ciphertext, iv)
+    message = decrypt_file(secret, message_ciphertext, iv)
     click.echo(message)

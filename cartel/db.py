@@ -44,14 +44,16 @@ class Message(Base):
     message = Column(String)
     signature = Column(String)
     iv = Column(String)
+    secret = Column(String)
 
-    def __init__(self, sender, recipient, message, signature, iv):
+    def __init__(self, sender, recipient, message, signature, iv, secret):
 
         self.sender = sender
         self.recipient = recipient
         self.message = message
         self.signature = signature
         self.iv = iv
+        self.secret = secret
 
 
 def create_db(reset=False):
