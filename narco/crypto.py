@@ -12,7 +12,7 @@ def encrypt_file(shared_secret, file_path):
     with open(file_path, "rb") as file:
         plaintext = file.read()
 
-    padded_data = pad(plaintext, AES.block_size, style="pkcs7")
+    padded_data = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(padded_data)
 
     return iv + ciphertext
@@ -21,11 +21,9 @@ def encrypt_file(shared_secret, file_path):
 def decrypt_file(shared_secret, ciphertext):
     iv = ciphertext[: AES.block_size]
     cipher = AES.new(shared_secret, AES.MODE_CBC, iv=iv)
-
+    del iv
     plaintext = cipher.decrypt(ciphertext[AES.block_size :])
-    unpadded_data = unpad(plaintext, AES.block_size, style="pkcs7")
-
-    return unpadded_data
+    return unpad(plaintext, AES.block_size)
 
 
 def derive_shared_secret(sender_private_key, receiver_public_key):
