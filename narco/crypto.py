@@ -6,19 +6,25 @@ from Crypto.Protocol.KDF import scrypt
 
 
 def encrypt_file(shared_secret, file_path):
-    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
-    data = file_to_bytes(file_path)
+    iv = get_random_bytes(AES.block_size)
+    cipher = AES.new(shared_secret, AES.MODE_CBC, iv)
 
-    padded_data = pad(data, AES.block_size)
+    with open(file_path, "rb") as file:
+        plaintext = file.read()
+
+    padded_data = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(padded_data)
 
-    return ciphertext
+    return iv + ciphertext
 
 
 def decrypt_file(shared_secret, ciphertext):
-    cipher = AES.new(shared_secret, AES.MODE_CBC, iv=get_random_bytes(16))
-    decrypted_data = cipher.decrypt(ciphertext, AES.block_size)
-    unpadded_data = unpad(decrypted_data)  # this is problem
+    iv = ciphertext[: AES.block_size]
+    cipher = AES.new(shared_secret, AES.MODE_CBC, iv)
+
+    plaintext = cipher.decrypt(ciphertext[AES.block_size :])
+    unpadded_data = unpad(plaintext, AES.block_size)
+
     return unpadded_data
 
 

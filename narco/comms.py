@@ -182,4 +182,4 @@ def read(message_id: int):
     verify_pubkey(sender["name"], sender_pubkey)
     shared_secret = derive_shared_secret(private_key, sender_pubkey)
     message = decrypt_file(shared_secret, message_ciphertext)
-    click.echo(message.decode("utf-8", errors="replace"))
+    click.echo(message)
