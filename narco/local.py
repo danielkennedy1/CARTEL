@@ -52,7 +52,7 @@ def init():
             f"Keys generated and saved at {os.path.abspath(os.path.join(cartel_dir, username))}"
         )
 
-        update_state({"user": username})
+        update_state({"user": username, "nonce": 0})
 
     except Exception as e:
         click.echo(f"Error: {str(e)}")
@@ -88,18 +88,25 @@ def select():
     update_state({"user": desired_user})
 
 
-def get_state():
+def get_state() -> dict:
     if not os.path.exists(os.path.join(cartel_dir, "state.json")):
         with open(os.path.join(cartel_dir, "state.json"), "w") as f:
             f.write("{}")
+            f.flush()
+            f.close()
 
     with open(os.path.join(cartel_dir, "state.json"), "r") as f:
-        return json.loads(f.read())
+        result = json.loads(f.read())
+        return dict(result)
 
+#NOTE: This function will only change fields that are passed in the state dictionary
+def update_state(input_state: dict):
+    current_state = get_state()
 
-def update_state(state):
+    new_state = {**current_state, **input_state}
+
     with open(os.path.join(cartel_dir, "state.json"), "w") as f:
-        f.write(json.dumps(state))
+        f.write(json.dumps(new_state))
 
 
 def get_local_keys(user: str) -> Tuple[RSA.RsaKey, RSA.RsaKey]:

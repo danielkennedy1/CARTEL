@@ -9,7 +9,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Random import get_random_bytes
 from narco.conf import CARTEL_URL
 from narco.crypto import encrypt_file, decrypt
-from narco.local import get_state, get_local_keys
+from narco.local import get_state, get_local_keys, update_state, get_state
 
 
 @click.command(help="Share a file with the cartel")
@@ -32,7 +32,7 @@ def send(file_path, to):
     receiver = json.loads(receiver.content.decode("utf-8"))
     receiver_pubkey = RSA.import_key(receiver["public_key"])
 
-    password = click.prompt("Enter your password:", hide_input=True)
+    password = click.prompt("Enter your password", hide_input=True)
 
     sender = get_user_by_name(sender)
     if sender is None:
@@ -57,9 +57,12 @@ def send(file_path, to):
             "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
+            "nonce": get_state()["nonce"],
             "passkey": passkey_ciphertext.hex(),
         },
     )
+
+    update_state({"nonce": get_state()["nonce"] + 1})
 
     if message.status_code != 200:
         click.echo(f"Error: {message.text}")
