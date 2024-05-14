@@ -12,6 +12,7 @@ Accepts a JSON object with the following fields:
 {
     "name": "username",
     "public_key": "pubkey"
+    "password": "password"
 }
 ```
 Returns 
@@ -50,8 +51,12 @@ Accepts a JSON object with the following fields:
 {
     "sender": 1,
     "recipient": 2,
+    "password": "password",
     "message": "message1",
-    "signature": "signature1"
+    "signature": "signature1",
+    "nonce": 1,
+    "passkey": "AAAAAA"
+
 }
 ```
 Returns 
@@ -62,6 +67,8 @@ Returns
     "recipient": 2,
     "message": "message1",
     "signature": "signature1"
+    "nonce": 1,
+    "passkey": "AAAAAA"
 }
 ```
 
@@ -96,5 +103,6 @@ Returns the message:
     "recipient": 2,
     "message": "message1",
     "signature": "signature1"
+    "passkey": "AAAAAA"
 }
 ```

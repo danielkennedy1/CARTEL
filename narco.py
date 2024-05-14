@@ -1,7 +1,8 @@
 import click
 
 from narco.local import init, select, whoami
-from narco.comms import send, whois, narcos, inbox, read
+from narco.user import whois, narcos
+from narco.message import send, inbox, read
 
 @click.group()
 def cli():
