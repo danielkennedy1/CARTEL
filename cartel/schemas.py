@@ -29,7 +29,8 @@ valid_new_message = Schema(
             "message": And(str, len),
             "signature": And(str, len),
             "password": And(str, len),
-            "nonce": And(int, lambda n:  0 <= n)
+            "nonce": And(int, lambda n:  0 <= n),
+            "passkey": And(str, len),
         }
 )
 valid_message_id = Schema(
