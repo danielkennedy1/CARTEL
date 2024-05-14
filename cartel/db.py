@@ -36,13 +36,15 @@ class Message(Base):
     recipient = Column(Integer, ForeignKey('users.id'))
     message = Column(String)
     signature = Column(String)
+    nonce = Column(Integer)
 
-    def __init__(self, sender, recipient, message, signature):
+    def __init__(self, sender, recipient, message, signature, nonce):
 
         self.sender = sender
         self.recipient = recipient
         self.message = message
         self.signature = signature
+        self.nonce = nonce
 
 def create_db(reset=False):
     if reset:

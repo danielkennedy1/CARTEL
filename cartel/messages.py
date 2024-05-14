@@ -51,16 +51,24 @@ def new_message(data: dict):
     except ValueError as e:
         return Response(f"Signature is invalid {e}", status=400)
 
+    previous_nonces = session.execute(select(Message.nonce).where(Message.sender == data["sender"])).scalars().all() # type: ignore
+
+    if data["nonce"] in previous_nonces:
+        return Response("Nonce already used", status=400)
+
     message = Message(
             sender=data["sender"],
             recipient=data["recipient"],
             message=data["message"],
-            signature=data["signature"])
+            signature=data["signature"],
+            nonce=data["nonce"]
+            )
     session.add(message)
     session.commit()
     return jsonify({"id": message.id,
                     "sender": message.sender,
                     "recipient": message.recipient,
                     "message": message.message,
-                    "signature": message.signature
+                    "signature": message.signature,
+                    "nonce": message.nonce
                     })
