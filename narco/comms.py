@@ -5,18 +5,22 @@ import json
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
-
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 from narco.conf import CARTEL_URL
 from narco.crypto import encrypt_file, decrypt
 from narco.local import get_state, get_local_keys
+
 
 @click.command(help="Share a file with the cartel")
 @click.argument("file_path", type=click.Path(exists=True))
 @click.argument("to", type=str)
 def send(file_path, to):
     sender = get_state()["user"]
-    sender_pubkey, sender_privkey = get_local_keys(sender)  # get only sender's private key
-    
+    sender_pubkey, sender_privkey = get_local_keys(
+        sender
+    )  # get only sender's private key
+
     verify_pubkey(sender, sender_pubkey)
 
     receiver = requests.post(f"{CARTEL_URL}/users", json={"name": to})
@@ -27,11 +31,6 @@ def send(file_path, to):
 
     receiver = json.loads(receiver.content.decode("utf-8"))
     receiver_pubkey = RSA.import_key(receiver["public_key"])
-    ciphertext = encrypt_file(file_path, receiver_pubkey)
-
-    # sign the message
-    hash = SHA256.new(ciphertext)
-    signature = pkcs1_15.new(sender_privkey).sign(hash)
 
     password = click.prompt("Enter your password:", hide_input=True)
 
@@ -43,6 +42,13 @@ def send(file_path, to):
     sender_user_id = sender["id"]
     receiver_user_id = receiver["id"]
 
+    passkey = get_random_bytes(32)
+    passkey_cipher = PKCS1_OAEP.new(receiver_pubkey)
+    passkey_ciphertext = passkey_cipher.encrypt(passkey)
+
+    ciphertext = encrypt_file(file_path, passkey)
+    hash = SHA256.new(ciphertext)
+    signature = pkcs1_15.new(sender_privkey).sign(hash)
     message = requests.put(
         f"{CARTEL_URL}/messages",
         json={
@@ -51,12 +57,14 @@ def send(file_path, to):
             "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
+            "passkey": passkey_ciphertext.hex(),
         },
     )
 
     if message.status_code != 200:
         click.echo(f"Error: {message.text}")
         return
+
 
 # verify the public key of a given username in the cartel against the one in the local keys
 def verify_pubkey(username: str, local_pubkey: RSA.RsaKey):
@@ -69,8 +77,11 @@ def verify_pubkey(username: str, local_pubkey: RSA.RsaKey):
     # import/export for same format comparison
     remote_pubkey = RSA.import_key(user["public_key"])
     if local_pubkey.export_key() != remote_pubkey.export_key():
-        click.echo(f"Error: {username} public key is different from the one in the cartel")
+        click.echo(
+            f"Error: {username} public key is different from the one in the cartel"
+        )
         return
+
 
 def get_user_by_name(name: str):
     response = requests.post(f"{CARTEL_URL}/users", json={"name": name})
@@ -103,12 +114,14 @@ def narcos():
     for user in response.json():
         click.echo(user)
 
-#MAYBE: format output, do dont show read ones, include sender info too, etc.
+
+# MAYBE: format output, do dont show read ones, include sender info too, etc.
 @click.command(help="List my messages")
 def inbox():
     if get_state().get("user") is None:
         click.echo(
-            "User not selected. Please run `select` to select a user or `init` to create one.")
+            "User not selected. Please run `select` to select a user or `init` to create one."
+        )
         return
     my_profile = get_user_by_name(get_state()["user"])
     if my_profile is None:
@@ -116,8 +129,7 @@ def inbox():
     user_id = my_profile["id"]
     if user_id is None:
         return
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"user_id": user_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"user_id": user_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -125,12 +137,11 @@ def inbox():
         click.echo(message)
 
 
-#MAYBE: require password to read
+# MAYBE: require password to read
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"message_id": message_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -142,7 +153,10 @@ def read(message_id: int):
     recipient_id = response["recipient"]
     message_ciphertext = bytes.fromhex(response["message"])
     signature = response["signature"]
+    passkey_ciphertext = bytes.fromhex(response["passkey"])
 
+    passkey_cipher = PKCS1_OAEP.new(get_local_keys(get_state()["user"])[1])
+    passkey = passkey_cipher.decrypt(passkey_ciphertext)
     _, private_key = get_local_keys(get_state()["user"])
 
     sender = get_user_by_id(sender_id)
@@ -152,7 +166,7 @@ def read(message_id: int):
 
     sender_pubkey = RSA.import_key(sender["public_key"])
 
-   # verify the signature
+    # verify the signature
     hash = SHA256.new(message_ciphertext)
 
     try:
@@ -167,7 +181,7 @@ def read(message_id: int):
     click.echo(f"Recipient ID: {recipient_id}")
 
     # decrypt the message
-    decrypted = decrypt(message_ciphertext, private_key)
+    decrypted = decrypt(message_ciphertext, passkey)
 
     click.echo("Decrypted message:")
-    click.echo(decrypted.decode("utf-8"))
+    click.echo(decrypted)
