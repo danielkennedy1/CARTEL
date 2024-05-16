@@ -1,108 +1,59 @@
 # CARTEL
 
-## User
+A client-server file sharing CLI application for tamper-detectable, e2e encrypted, and authenticated file sharing.
 
-### GET /user
-returns all usernames
+## Submission
 
-### PUT /user
-Registers a new user
-Accepts a JSON object with the following fields:
-```
-{
-    "name": "username",
-    "public_key": "pubkey"
-    "password": "password"
-}
-```
-Returns 
-```
-{
-    "id": 1,
-    "name": "username",
-    "public_key": "pubkey"
-}
+- Adam Byrne (22338004)
+- Daniel Kennedy (XXXXXXXX)
+
+## Install
+
+```bash
+git clone git@github.com:danielkennedy1/cs4455_FileTransfer.git
+cd cs4455_FileTransfer
+
+# Install dependencies
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
 ```
 
-### POST /user
-Get user info from username
+## Usage
 
-Accepts a JSON object with the following fields:
-```
-{
-    "name": "username"
-}
-```
-Returns 
-```
-{
-    "id": 1,
-    "name": "username",
-    "public_key": "pubkey"
-}
-```
+```bash
+python cartel.py # Flask Server (uses cartel/ directory)
+python narco.py # CLI Client (uses narco/ directory)
+``` 
 
-## Message
+**Note**: 
 
-### PUT /message
-Send a message
-Accepts a JSON object with the following fields:
-```
-{
-    "sender": 1,
-    "recipient": 2,
-    "password": "password",
-    "message": "message1",
-    "signature": "signature1",
-    "nonce": 1,
-    "passkey": "AAAAAA"
+- A `.cartel` directory will be created in the user's home directory to store local state.
 
-}
-```
-Returns 
-```
-{
-    "id": 1,
-    "sender": 1,
-    "recipient": 2,
-    "message": "message1",
-    "signature": "signature1"
-    "nonce": 1,
-    "passkey": "AAAAAA"
-}
+### Commands
+
+```man
+python narco.py --help
+
+Usage: narco.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  inbox   List my messages
+  init    Generate your key pairs to access the cartel
+  narcos  List all usernames in the cartel
+  read    Get contents of a message
+  select  Select local user
+  send    Share a file with the cartel
+  whoami  Display the current user
+  whois   Get details of a user in the cartel
 ```
 
-### POST /message
+## Testing
 
-Get messages for a given user id:
-Accepts a JSON object with the following fields:
-```
-{
-    "user_id": 1
-}
-```
-Returns a list of message Ids
-```
-[ 2, 3, 4, 5]
-```
-
-### OR
-
-Get a specific message:
-```
-{
-    "message_id": 2
-}
-```
-
-Returns the message: 
-```
-{
-    "id": 2,
-    "sender": 1,
-    "recipient": 2,
-    "message": "message1",
-    "signature": "signature1"
-    "passkey": "AAAAAA"
-}
+```bash
+python -m unittest narco/test_*.py # Run client side tests
 ```
