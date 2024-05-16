@@ -1,4 +1,4 @@
-# CARTEL
+# CARTEL API Specification
 
 ## User
 
