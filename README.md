@@ -20,6 +20,17 @@ source venv/bin/activate # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Deploy server
+
+Must be done by a user with sudo privileges (ensure to change user in the `cartel.service` file)
+
+```bash
+sudo cp cartel.service /etc/systemd/system/cartel.service
+sudo systemctl daemon-reload
+sudo systemctl enable cartel.service # Start on boot
+sudo systemctl start cartel.service # Start now
+```
+
 ## Usage
 
 ```bash

@@ -1,0 +1,12 @@
+[Unit]
+Description=Cartel Server
+
+[Service]
+ExecStart=python3 /var/www/html/cartel/cartel.py
+WorkingDirectory=/var/www/html/cartel
+User=mark
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
