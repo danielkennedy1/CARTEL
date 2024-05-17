@@ -5,7 +5,7 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 ## Submission
 
 - Adam Byrne (22338004)
-- Daniel Kennedy (XXXXXXXX)
+- Daniel Kennedy (22340017)
 
 ## Install
 
