@@ -9,7 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///cartel.db", echo=True)
+engine = create_engine("sqlite:///cartel.db")
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)
