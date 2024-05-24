@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11.x"
 
       - name: Create temporary directories
-        run: mkdir -p Downloads && mkdir -p .cartel
+        run: mkdir -p Downloads && mkdir -p /home/runner/.cartel
 
       - name: Install dependencies
         run: |
