@@ -42,7 +42,8 @@ def inbox():
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
-    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id})
+    password = click.prompt("Enter your password", hide_input=True)
+    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id, "password": password})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
