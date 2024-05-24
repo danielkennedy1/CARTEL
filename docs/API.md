@@ -67,8 +67,9 @@ Send a message. Accepts a JSON object with the following fields:
     "password": "password",
     "message": "message1",
     "signature": "signature1",
-    "nonce": 1,
-    "passkey": "AAAAAA"
+    "nonce": "wuivcygawsui",
+    "passkey": "AAAAAA",
+    "tag": "tag1"
 
 }
 ```
@@ -82,8 +83,9 @@ Send a message. Accepts a JSON object with the following fields:
     "recipient": 2,
     "message": "message1",
     "signature": "signature1"
-    "nonce": 1,
-    "passkey": "AAAAAA"
+    "nonce": "wuivcygawsui",
+    "passkey": "AAAAAA",
+    "tag": "tag1"
 }
 ```
 
@@ -123,6 +125,8 @@ Get a specific message with a password. Accepts a JSON object with the following
     "recipient": 2,
     "message": "message1",
     "signature": "signature1"
-    "passkey": "AAAAAA"
+    "passkey": "AAAAAA",
+    "tag": "tag1",
+    "nonce": "wuivcygawsui"
 }
 ```
