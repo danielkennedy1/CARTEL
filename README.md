@@ -22,8 +22,8 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 ## Install
 
 ```bash
-git clone git@github.com:danielkennedy1/cs4455_FileTransfer.git
-cd cs4455_FileTransfer
+git clone git@github.com:danielkennedy1/CARTEL.git
+cd CARTEL
 
 # Install dependencies
 python -m venv venv
