@@ -8,8 +8,8 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 - Daniel Kennedy (22340017)
 
 ## Documentation
-- API Documentation: [API.md](API.md)
-- Crypto Documentation: [CRYPTO.md](CRYPTO.md)
+- API Documentation: [API.md](docs/API.md)
+- Crypto Documentation: [CRYPTO.md](docs/CRYPTO.md)
 
 ## Install
 
