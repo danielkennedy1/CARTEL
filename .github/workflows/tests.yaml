@@ -1,4 +1,4 @@
-name: Python Test
+name: Python Tests
 
 on: [push, pull_request]
 
@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        python-version: [3.10, 3.11, 3.12]
 
     steps:
       - name: Checkout repository
@@ -21,16 +21,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m venv venv
-          source venv/bin/activate
           pip install -r requirements.txt
 
       - name: Run client-side tests
         run: |
-          source venv/bin/activate
           python -m unittest narco/test_*.py
 
       - name: Run E2E test
         run: |
-          source venv/bin/activate
           python test.py
