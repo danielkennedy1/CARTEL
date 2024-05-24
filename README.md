@@ -43,10 +43,6 @@ sudo systemctl enable cartel.service # Start on boot
 sudo systemctl start cartel.service # Start now
 ```
 
-## Notes, Config, and Assumptions
-
-Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from RFC 9106.
-
 ## Usage
 
 ```bash
