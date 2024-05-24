@@ -3,7 +3,7 @@ from flask import Flask, request, Response
 from cartel.db import create_db
 from cartel.users import register_user, list_users, get_user_by_name, get_user_by_id
 from cartel.messages import list_messages, get_message, new_message
-from cartel.schemas import valid_id, valid_user_id, valid_name, valid_name_and_public_key, valid_message_id, valid_new_message
+from cartel.schemas import valid_id, valid_user_id, valid_name, valid_name_and_public_key, valid_read_message, valid_new_message
 
 app = Flask(__name__)
 
@@ -45,11 +45,11 @@ def send_message():
 def messages():
     data: dict = request.json or {}
 
-    if valid_user_id.is_valid(data) and not valid_message_id.is_valid(data):
+    if valid_user_id.is_valid(data) and not valid_read_message.is_valid(data):
         return list_messages(data["user_id"])
 
-    if valid_message_id.is_valid(data) and not valid_user_id.is_valid(data):
-        return get_message(data["message_id"])
+    if valid_read_message.is_valid(data) and not valid_user_id.is_valid(data):
+        return get_message(data["message_id"], data["password"])
 
     return Response("Invalid payload", status=405)
 

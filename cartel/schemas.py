@@ -33,8 +33,9 @@ valid_new_message = Schema(
             "passkey": And(str, len),
         }
 )
-valid_message_id = Schema(
+valid_read_message = Schema(
     {
-        "message_id": And(int, lambda n:  0 <= n)
+        "message_id": And(int, lambda n:  0 <= n),
+        "password": And(str, len)
     }
 )

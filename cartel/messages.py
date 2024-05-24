@@ -26,10 +26,12 @@ def list_messages(user_id: int):
 
 
 # Get message: return message data by ID
-def get_message(id: int):
+def get_message(id: int, password: str):
     message = session.query(Message).get(id)
     if not message:
         return Response("Message not found", status=404)
+    if not verify_password(message.recipient, password):
+        return Response("Access denied", status=401)
     return jsonify(
         {
             "id": message.id,

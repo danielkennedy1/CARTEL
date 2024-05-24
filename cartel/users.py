@@ -1,13 +1,15 @@
-import bcrypt
 from flask import jsonify 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from argon2 import PasswordHasher
 
 from cartel.db import User, session 
 
+ph = PasswordHasher()
+
 # Register: create user, return created user data
 def register_user(name: str, public_key: str, password: str):
-    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    password_hash = ph.hash(password)
     user = User(name=name, public_key=public_key, password_hash=password_hash)
     try:
         session.add(user)
@@ -52,4 +54,4 @@ def verify_password(user_id: int, password: str) -> bool:
     result = session.execute(select(User.password_hash).where(User.id == user_id)).first() # type: ignore
     if not result:
         return False
-    return bcrypt.checkpw(password.encode(), result.password_hash.encode())
+    return ph.verify(result.password_hash, password)
