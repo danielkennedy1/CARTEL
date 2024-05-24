@@ -7,15 +7,12 @@ from Crypto.PublicKey import RSA
 from cartel.db import Message, User, session
 from cartel.users import verify_password
 
-# TODO: blah
+
 # List messages: return all messages for user
-
-
 def list_messages(user_id: int):
     result = (
         session.execute(
-            select(Message.id, Message.sender).where(
-                Message.recipient == user_id)
+            select(Message.id, Message.sender).where(Message.recipient == user_id)
         )
         .scalars()
         .all()
@@ -54,8 +51,9 @@ def new_message(data: dict):
         return Response("Recipient not found", status=404)
 
     # verify the signature
-    sender_pubkey = session.execute(select(User.public_key).where(
-        User.id == data["sender"])).scalar()  # type: ignore
+    sender_pubkey = session.execute(
+        select(User.public_key).where(User.id == data["sender"])
+    ).scalar()  # type: ignore
 
     if not sender_pubkey:
         return Response("Sender ID is not found", status=404)
@@ -65,13 +63,15 @@ def new_message(data: dict):
     hash = SHA256.new(bytes.fromhex(data["message"]))
 
     try:
-        pkcs1_15.new(sender_pubkey).verify(
-            hash, bytes.fromhex(data["signature"]))
+        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(data["signature"]))
     except ValueError as e:
         return Response(f"Signature is invalid {e}", status=400)
 
-    previous_nonces = session.execute(select(Message.nonce).where(
-        Message.sender == data["sender"])).scalars().all()  # type: ignore
+    previous_nonces = (
+        session.execute(select(Message.nonce).where(Message.sender == data["sender"]))
+        .scalars()
+        .all()
+    )  # type: ignore
 
     if data["nonce"] in previous_nonces:
         return Response("Nonce already used", status=400)
@@ -86,11 +86,14 @@ def new_message(data: dict):
     )
     session.add(message)
     session.commit()
-    return jsonify({"id": message.id,
-                    "sender": message.sender,
-                    "recipient": message.recipient,
-                    "message": message.message,
-                    "signature": message.signature,
-                    "nonce": message.nonce,
-                    "passkey": message.passkey,
-                    })
+    return jsonify(
+        {
+            "id": message.id,
+            "sender": message.sender,
+            "recipient": message.recipient,
+            "message": message.message,
+            "signature": message.signature,
+            "nonce": message.nonce,
+            "passkey": message.passkey,
+        }
+    )
