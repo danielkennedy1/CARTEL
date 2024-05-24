@@ -49,7 +49,8 @@ def init():
             f.write(key.publickey().export_key("PEM"))
 
         click.echo(
-            f"Keys generated and saved at {os.path.abspath(os.path.join(CARTEL_DIR, username))}"
+            f"Keys generated and saved at {
+                os.path.abspath(os.path.join(CARTEL_DIR, username))}"
         )
 
         update_state({"user": username, "nonce": 0})
