@@ -1,22 +1,31 @@
-# CARTEL API Specification
+# API Specification
 
 ## User
 
-### GET /user
-returns all usernames
+### GET `/user`
 
-### PUT /user
+Returns all usernames as an array of strings
+
+```python
+["username1", "username2", "username3"]
+```
+
+### PUT `/user`
+
 Registers a new user
 Accepts a JSON object with the following fields:
-```
+
+```json
 {
     "name": "username",
     "public_key": "pubkey"
     "password": "password"
 }
 ```
-Returns 
-```
+
+**Returns**
+
+```json
 {
     "id": 1,
     "name": "username",
@@ -24,17 +33,20 @@ Returns
 }
 ```
 
-### POST /user
+### POST `/user`
 Get user info from username
 
 Accepts a JSON object with the following fields:
-```
+
+```json
 {
     "name": "username"
 }
 ```
-Returns 
-```
+
+**Returns**
+
+```json
 {
     "id": 1,
     "name": "username",
@@ -44,10 +56,11 @@ Returns
 
 ## Message
 
-### PUT /message
-Send a message
-Accepts a JSON object with the following fields:
-```
+### PUT `/message`
+
+Send a message. Accepts a JSON object with the following fields:
+
+```json
 {
     "sender": 1,
     "recipient": 2,
@@ -59,8 +72,10 @@ Accepts a JSON object with the following fields:
 
 }
 ```
-Returns 
-```
+
+**Returns**
+
+```json
 {
     "id": 1,
     "sender": 1,
@@ -72,32 +87,36 @@ Returns
 }
 ```
 
-### POST /message
+### POST `/message`
 
-Get messages for a given user id:
-Accepts a JSON object with the following fields:
-```
+Get messages for a given user id. Accepts a JSON object with the following fields:
+
+```json
 {
     "user_id": 1
 }
 ```
-Returns a list of message Ids
-```
+
+**Returns a list of message IDs**
+
+```json
 [ 2, 3, 4, 5]
 ```
 
 ### OR
 
-Get a specific message:
-```
+Get a specific message with a password. Accepts a JSON object with the following fields:
+
+```json
 {
     "message_id": 2,
     "password": "password"
 }
 ```
 
-Returns the message: 
-```
+**Returns the message:**
+
+```json
 {
     "id": 2,
     "sender": 1,

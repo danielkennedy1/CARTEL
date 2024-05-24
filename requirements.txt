@@ -1,3 +1,4 @@
+appnope==0.1.4
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 asttokens==2.4.1
@@ -28,10 +29,12 @@ matplotlib-inline==0.1.7
 nest-asyncio==1.6.0
 packaging==24.0
 parso==0.8.4
+pexpect==4.9.0
 platformdirs==4.2.1
 pluggy==1.5.0
 prompt-toolkit==3.0.43
 psutil==5.9.8
+ptyprocess==0.7.0
 pure-eval==0.2.2
 pyasn1==0.6.0
 pycparser==2.22
@@ -39,7 +42,6 @@ pycryptodome==3.20.0
 Pygments==2.18.0
 pytest==8.2.1
 python-dateutil==2.9.0.post0
-pywin32==306
 pyzmq==26.0.3
 requests==2.31.0
 schema==0.7.7

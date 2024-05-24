@@ -7,11 +7,23 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 - Adam Byrne (22338004)
 - Daniel Kennedy (22340017)
 
+### File structure
+
+| ~ | Description |
+| --- | --- |
+| `cartel/` | Server-side code |
+| cartel.py | Flask server |
+| `narco/` | Client-side code |
+| narco.py | CLI client |
+| test.py | E2E test |
+| narco/test_*.py | Client-side tests |
+| `docs/` | API & Crypto Documentation |
+
 ## Install
 
 ```bash
-git clone git@github.com:danielkennedy1/cs4455_FileTransfer.git
-cd cs4455_FileTransfer
+git clone git@github.com:danielkennedy1/CARTEL.git
+cd CARTEL
 
 # Install dependencies
 python -m venv venv
@@ -32,17 +44,17 @@ sudo systemctl start cartel.service # Start now
 ```
 
 ## Notes, Config, and Assumptions
-Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from RFC 9106.
 
+Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from RFC 9106.
 
 ## Usage
 
 ```bash
 python cartel.py # Flask Server (uses cartel/ directory)
 python narco.py # CLI Client (uses narco/ directory)
-``` 
+```
 
-**Note**: 
+**Note**:
 
 - A `.cartel` directory will be created in the user's home directory to store local state.
 
@@ -71,4 +83,5 @@ Commands:
 
 ```bash
 python -m unittest narco/test_*.py # Run client side tests
+python test.py # E2E positive test
 ```
