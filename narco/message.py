@@ -18,7 +18,8 @@ from narco.user import get_user_by_name, verify_pubkey, get_user_by_id
 def inbox():
     if get_state().get("user") is None:
         click.echo(
-            "User not selected. Please run `select` to select a user or `init` to create one.")
+            "User not selected. Please run `select` to select a user or `init` to create one."
+        )
         return
 
     my_profile = get_user_by_name(get_state()["user"])
@@ -29,8 +30,7 @@ def inbox():
     if user_id is None:
         return
 
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"user_id": user_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"user_id": user_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -42,8 +42,7 @@ def inbox():
 @click.command(help="Get contents of a message")
 @click.argument("message_id", type=int)
 def read(message_id: int):
-    response = requests.post(
-        f"{CARTEL_URL}/messages", json={"message_id": message_id})
+    response = requests.post(f"{CARTEL_URL}/messages", json={"message_id": message_id})
     if response.status_code != 200:
         click.echo(f"Error: {response.text}")
         return
@@ -64,8 +63,7 @@ def read(message_id: int):
     hash = SHA256.new(bytes.fromhex(response["message"]))
 
     try:
-        pkcs1_15.new(sender_pubkey).verify(
-            hash, bytes.fromhex(response["signature"]))
+        pkcs1_15.new(sender_pubkey).verify(hash, bytes.fromhex(response["signature"]))
         click.echo("Signature is valid")
     except ValueError:
         click.echo("Signature is invalid")
@@ -77,8 +75,15 @@ def read(message_id: int):
 
     decrypted = decrypt(bytes.fromhex(response["message"]), passkey)
 
-    download_dir_chosen = click.prompt(
-        f"Choose location in {os.path.expanduser("~")}/")
+    locations = [
+        name
+        for name in os.listdir(os.path.expanduser("~"))
+        if os.path.isdir(os.path.join(os.path.expanduser("~"), name))
+        and name[0] != "."  # ignore hidden directories
+        and name[0].isupper()  # ignore system directories
+    ]
+
+    download_dir_chosen = click.prompt(f"Choose location in {locations}")
     download_dir = os.path.join(os.path.expanduser("~"), download_dir_chosen)
     download_name = click.prompt("Name this file")
     download_path = os.path.join(download_dir, download_name)
