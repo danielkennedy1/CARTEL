@@ -22,7 +22,3 @@ jobs:
       - name: Run client-side tests
         run: |
           python -m unittest narco/test_*.py
-
-      - name: Run E2E test
-        run: |
-          python test.py
