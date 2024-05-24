@@ -91,7 +91,8 @@ Returns a list of message Ids
 Get a specific message:
 ```
 {
-    "message_id": 2
+    "message_id": 2,
+    "password": "password"
 }
 ```
 
