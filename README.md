@@ -7,9 +7,17 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 - Adam Byrne (22338004)
 - Daniel Kennedy (22340017)
 
-## Documentation
-- API Documentation: [API.md](docs/API.md)
-- Crypto Documentation: [CRYPTO.md](docs/CRYPTO.md)
+### File structure
+
+| ~ | Description |
+| --- | --- |
+| `cartel/` | Server-side code |
+| cartel.py | Flask server |
+| `narco/` | Client-side code |
+| narco.py | CLI client |
+| test.py | E2E test |
+| narco/test_*.py | Client-side tests |
+| `docs/` | API & Crypto Documentation |
 
 ## Install
 
@@ -44,9 +52,9 @@ Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses lo
 ```bash
 python cartel.py # Flask Server (uses cartel/ directory)
 python narco.py # CLI Client (uses narco/ directory)
-``` 
+```
 
-**Note**: 
+**Note**:
 
 - A `.cartel` directory will be created in the user's home directory to store local state.
 
