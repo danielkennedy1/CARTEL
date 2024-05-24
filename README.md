@@ -7,6 +7,10 @@ A client-server file sharing CLI application for tamper-detectable, e2e encrypte
 - Adam Byrne (22338004)
 - Daniel Kennedy (22340017)
 
+## Documentation
+- API Documentation: [API.md](API.md)
+- Crypto Documentation: [CRYPTO.md](CRYPTO.md)
+
 ## Install
 
 ```bash
@@ -32,8 +36,8 @@ sudo systemctl start cartel.service # Start now
 ```
 
 ## Notes, Config, and Assumptions
-Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from RFC 9106.
 
+Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from RFC 9106.
 
 ## Usage
 
@@ -71,4 +75,5 @@ Commands:
 
 ```bash
 python -m unittest narco/test_*.py # Run client side tests
+python test.py # E2E positive test
 ```
