@@ -1,23 +1,20 @@
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
 
-def encrypt_file(file: str, passkey: bytes) -> bytes:
-    cipher = AES.new(passkey, AES.MODE_CBC)
-
+def encrypt_file(file: str, passkey: bytes):
     with open(file, "rb") as f:
         plaintext = f.read()
 
-    ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
-    iv = bytearray(cipher.iv)
+    return encrypt(plaintext, passkey)
 
-    return bytes(iv + ciphertext)
 
-def decrypt(input: bytes, passkey: bytes) -> bytes:
-    iv = input[:16]
-    ciphertext = input[16:]
+def encrypt(plaintext: bytes, passkey: bytes):
+    cipher = AES.new(passkey, AES.MODE_GCM)
+    ciphertext, tag = cipher.encrypt_and_digest(plaintext)
 
-    cipher = AES.new(passkey, AES.MODE_CBC, iv=iv)
-    decrypted = cipher.decrypt(ciphertext)
-    plaintext = unpad(decrypted, AES.block_size)
+    return bytes(ciphertext), cipher.nonce, tag
+
+def decrypt(ciphertext: bytes, passkey: bytes, nonce: bytes, tag: bytes) -> bytes:
+    cipher = AES.new(passkey, AES.MODE_GCM, nonce=nonce)
+    plaintext = cipher.decrypt_and_verify(ciphertext, tag)
 
     return plaintext
