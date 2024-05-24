@@ -51,7 +51,7 @@ def init():
         keypath = os.path.abspath(os.path.join(CARTEL_DIR, username))
         click.echo(f"Keys generated and saved at {keypath}")
 
-        update_state({"user": username, "nonce": 0})
+        update_state({"user": username})
 
     except Exception as e:
         click.echo(f"Error: {str(e)}")

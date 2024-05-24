@@ -37,6 +37,8 @@ def get_message(id: int, password: str):
             "message": message.message,
             "signature": message.signature,
             "passkey": message.passkey,
+            "nonce": message.nonce,
+            "tag": message.tag,
         }
     )
 
@@ -83,17 +85,17 @@ def new_message(data: dict):
         signature=data["signature"],
         nonce=data["nonce"],
         passkey=data["passkey"],
+        tag=data["tag"],
     )
     session.add(message)
     session.commit()
-    return jsonify(
-        {
-            "id": message.id,
-            "sender": message.sender,
-            "recipient": message.recipient,
-            "message": message.message,
-            "signature": message.signature,
-            "nonce": message.nonce,
-            "passkey": message.passkey,
-        }
-    )
+
+    return jsonify({"id": message.id,
+                    "sender": message.sender,
+                    "recipient": message.recipient,
+                    "message": message.message,
+                    "signature": message.signature,
+                    "nonce": message.nonce,
+                    "passkey": message.passkey,
+                    "tag": message.tag
+                    })
