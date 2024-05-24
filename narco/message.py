@@ -74,7 +74,7 @@ def read(message_id: int):
     click.echo(f"Sender ID: {response['sender']}")
     click.echo(f"Recipient ID: {response['recipient']}")
 
-    decrypted = decrypt(bytes.fromhex(response["message"]), passkey)
+    decrypted = decrypt(bytes.fromhex(response["message"]), passkey, bytes.fromhex(response["nonce"]), bytes.fromhex(response["tag"]))
 
     locations = [
         name
@@ -126,7 +126,7 @@ def send(file_path, to):
     passkey_cipher = PKCS1_OAEP.new(receiver_pubkey)
     passkey_ciphertext = passkey_cipher.encrypt(passkey)
 
-    ciphertext = encrypt_file(file_path, passkey)
+    ciphertext, nonce, tag = encrypt_file(file_path, passkey)
 
     hash = SHA256.new(ciphertext)
     signature = pkcs1_15.new(sender_privkey).sign(hash)
@@ -138,12 +138,11 @@ def send(file_path, to):
             "password": password,
             "message": ciphertext.hex(),
             "signature": signature.hex(),
-            "nonce": get_state()["nonce"],
+            "nonce": nonce.hex(),
             "passkey": passkey_ciphertext.hex(),
+            "tag": tag.hex(),
         },
     )
-
-    update_state({"nonce": get_state()["nonce"] + 1})
 
     if message.status_code != 200:
         click.echo(f"Error: {message.text}")

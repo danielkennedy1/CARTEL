@@ -1,10 +1,11 @@
 import unittest
 from narco.crypto import encrypt_file, decrypt
+from Crypto.Random import get_random_bytes
 
 
 class TestCrypto(unittest.TestCase):
     def setUp(self):
-        self.passkey = b"thisisapasskey123456789101112131"
+        self.passkey = get_random_bytes(32)
         self.file = "test.txt"
 
         with open(self.file, "w") as f:
@@ -16,7 +17,8 @@ class TestCrypto(unittest.TestCase):
         os.remove(self.file)
 
     def test_correctness(self):
-        assert decrypt(encrypt_file(self.file, self.passkey), self.passkey) == b"test"
+        ciphertext, nonce, tag = encrypt_file(self.file, self.passkey)
+        assert decrypt(ciphertext, self.passkey, nonce, tag) == b"test"
 
 
 if __name__ == "__main__":

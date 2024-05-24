@@ -53,7 +53,7 @@ def init():
                 os.path.abspath(os.path.join(CARTEL_DIR, username))}"
         )
 
-        update_state({"user": username, "nonce": 0})
+        update_state({"user": username})
 
     except Exception as e:
         click.echo(f"Error: {str(e)}")

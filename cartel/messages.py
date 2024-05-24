@@ -40,6 +40,8 @@ def get_message(id: int, password: str):
             "message": message.message,
             "signature": message.signature,
             "passkey": message.passkey,
+            "nonce": message.nonce,
+            "tag": message.tag,
         }
     )
 
@@ -83,6 +85,7 @@ def new_message(data: dict):
         signature=data["signature"],
         nonce=data["nonce"],
         passkey=data["passkey"],
+        tag=data["tag"],
     )
     session.add(message)
     session.commit()
@@ -93,4 +96,5 @@ def new_message(data: dict):
                     "signature": message.signature,
                     "nonce": message.nonce,
                     "passkey": message.passkey,
+                    "tag": message.tag
                     })
