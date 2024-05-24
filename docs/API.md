@@ -1,7 +1,7 @@
 # CARTEL API Specification
 
 ## User
----
+
 ### GET /user
 returns all usernames
 
@@ -43,7 +43,7 @@ Returns
 ```
 
 ## Message
----
+
 ### PUT /message
 Send a message
 Accepts a JSON object with the following fields:
