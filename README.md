@@ -77,7 +77,15 @@ Commands:
 
 ## Testing
 
+
+## Unit tests
+
 ```bash
 python -m unittest narco/test_*.py # Run client side tests
 python test.py # E2E positive test
 ```
+
+
+## Automation
+[![E2E Test](https://github.com/danielkennedy1/CARTEL/actions/workflows/e2e_test.yaml/badge.svg)](https://github.com/danielkennedy1/CARTEL/actions/workflows/e2e_test.yaml) [![Python Unit Tests](https://github.com/danielkennedy1/CARTEL/actions/workflows/unit_testing.yaml/badge.svg)](https://github.com/danielkennedy1/CARTEL/actions/workflows/unit_testing.yaml)
+Our tests run on GitHub Actions on every push and PR to the main branch. The workflows can be found in `.github/workflows/`.
