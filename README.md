@@ -87,7 +87,6 @@ python -m unittest narco/test_*.py # Run client side tests
 python test.py # E2E positive test
 ```
 
-
-## Automation
+## Automation
 
 Our tests run on GitHub Actions on every push and PR to the main branch. The workflows can be found in `.github/workflows/`.
