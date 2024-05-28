@@ -17,7 +17,7 @@ An overview of the decisions made in the design of this file sharing system w.r.
 
 ## Data at Rest
 
-- Data is encrypted with AES-256-GCM, using the `cryptography` library.
+- Data is encrypted with AES-256-GCM, using the `PyCryptoDome` library.
 - You can't decrypt the data without the key, which is sent using the intended recipient's public key so only they can decrypt it.
 - Tamper detection is done by verifying the signature of the file and the sender's public key.
 - Offline checks: if you connect and your public key is different, you will get an alert and can tell your friends to stop trusting the server.
