@@ -29,6 +29,7 @@ def get_message(id: int, password: str):
         return Response("Message not found", status=404)
     if not verify_password(message.recipient, password):
         return Response("Access denied", status=401)
+    del password
     return jsonify(
         {
             "id": message.id,
@@ -48,6 +49,8 @@ def new_message(data: dict):
 
     if not verify_password(data["sender"], data["password"]):
         return Response("Access denied: password is incorrect", status=401)
+
+    data.pop("password")
 
     if not session.query(User).get(data["recipient"]):
         return Response("Recipient not found", status=404)

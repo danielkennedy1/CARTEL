@@ -10,6 +10,7 @@ ph = PasswordHasher()
 # Register: create user, return created user data
 def register_user(name: str, public_key: str, password: str):
     password_hash = ph.hash(password)
+    del password
     user = User(name=name, public_key=public_key, password_hash=password_hash)
     try:
         session.add(user)
@@ -54,4 +55,10 @@ def verify_password(user_id: int, password: str) -> bool:
     result = session.execute(select(User.password_hash).where(User.id == user_id)).first() # type: ignore
     if not result:
         return False
-    return ph.verify(result.password_hash, password)
+    #DIRT:
+    try:
+        ph.verify(result.password_hash, password)
+        del password
+        return True
+    except:
+        return False
