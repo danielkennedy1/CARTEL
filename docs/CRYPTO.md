@@ -2,7 +2,7 @@
 
 An overview of the decisions made in the design of this file sharing system w.r.t. cryptography.
 
-## Auth
+## Authentication
 
 - Users register with a password and a RSA public key us stored in the db. Their keys are saved in the `.cartel` directory.
     - Password hashing is done with Argon2id, using the `argon2_cffi` library. Uses low memory "SECOND RECOMMENDED" configuration from [RFC 9106 (CFRG)](https://www.rfc-editor.org/rfc/rfc9106.html#section-4-6.2) as the high memory one is 2 GiB.
